@@ -1,4 +1,6 @@
+import 'package:event_manager_2/noti_service.dart';
 import 'package:flutter/material.dart';
+import 'event_calendar_page.dart';
 import 'event.dart';
 import 'csv_service.dart';
 import 'pdf_service.dart';
@@ -20,10 +22,11 @@ class _EventListPageState extends State<EventListPage> {
   final TextEditingController _attendeesController = TextEditingController();
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-
+  final NotiService notiService = NotiService();
   @override
   void initState() {
     super.initState();
+    notiService.initNotification();
     _loadEvents();
   }
 
@@ -182,7 +185,11 @@ class _EventListPageState extends State<EventListPage> {
   void _deleteSelected() {
     setState(() {
       // Map visible indexes to real indexes in _allEvents
-      final visibleEvents = _allEvents.asMap().entries.where((entry) => !entry.value.isDeleted).toList();
+      final visibleEvents = _allEvents
+          .asMap()
+          .entries
+          .where((entry) => !entry.value.isDeleted)
+          .toList();
       for (var visibleIndex in _selectedIndexes) {
         final realIndex = visibleEvents[visibleIndex].key;
         final event = _allEvents[realIndex];
@@ -243,7 +250,11 @@ class _EventListPageState extends State<EventListPage> {
               itemCount: _allEvents.where((e) => !e.isDeleted).length,
               itemBuilder: (context, visibleIndex) {
                 // Map visibleIndex to the correct index in _allEvents
-                final visibleEvents = _allEvents.asMap().entries.where((entry) => !entry.value.isDeleted).toList();
+                final visibleEvents = _allEvents
+                    .asMap()
+                    .entries
+                    .where((entry) => !entry.value.isDeleted)
+                    .toList();
                 final index = visibleEvents[visibleIndex].key;
                 final event = _allEvents[index];
                 final isSelected = _selectedIndexes.contains(visibleIndex);
@@ -289,6 +300,14 @@ class _EventListPageState extends State<EventListPage> {
                 FloatingActionButton(
                   onPressed: _generatePdf,
                   child: const Icon(Icons.picture_as_pdf),
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  onPressed: () async {
+                    final noti = NotiService();
+                    await noti.checkTomorrowEventsAndNotify();
+                  },
+                  child: const Icon(Icons.notifications_active),
                 ),
               ],
             )
