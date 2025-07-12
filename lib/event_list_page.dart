@@ -1,8 +1,7 @@
 import 'package:event_manager_2/noti_service.dart';
 import 'package:flutter/material.dart';
-import 'event_calendar_page.dart';
 import 'event.dart';
-import 'csv_service.dart';
+import 'event_crud_service.dart';
 import 'pdf_service.dart';
 import 'event_detail_page.dart';
 
@@ -14,7 +13,6 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
-  List<Event> _allEvents = [];
   Set<int> _selectedIndexes = {};
   bool _selectionMode = false;
 
@@ -23,6 +21,7 @@ class _EventListPageState extends State<EventListPage> {
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final NotiService notiService = NotiService();
+
   @override
   void initState() {
     super.initState();
@@ -31,14 +30,8 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   Future<void> _loadEvents() async {
-    final loadedEvents = await CSVService.loadAllEvents();
-    setState(() {
-      _allEvents = loadedEvents;
-    });
-  }
-
-  Future<void> _saveEvents() async {
-    await CSVService.saveEvents(_allEvents);
+    await EventCrudService.loadEvents();
+    setState(() {});
   }
 
   Future<void> _pickDateTime() async {
@@ -68,9 +61,7 @@ class _EventListPageState extends State<EventListPage> {
             "${fullDateTime.year}-${fullDateTime.month.toString().padLeft(2, '0')}-${fullDateTime.day.toString().padLeft(2, '0')} "
             "${pickedTime.format(context)}";
 
-        setState(() {
-          _dateTimeController.text = formatted;
-        });
+        _dateTimeController.text = formatted;
       }
     }
   }
@@ -115,17 +106,14 @@ class _EventListPageState extends State<EventListPage> {
         actions: [
           TextButton(
             onPressed: () {
-              setState(() {
-                _allEvents.add(
-                  Event(
-                    name: _nameController.text,
-                    dateTime: _dateTimeController.text,
-                    attendees: _attendeesController.text,
-                    amount: _amountController.text,
-                  ),
-                );
-              });
-              _saveEvents();
+              final newEvent = Event(
+                name: _nameController.text,
+                dateTime: _dateTimeController.text,
+                attendees: _attendeesController.text,
+                amount: _amountController.text,
+              );
+
+              EventCrudService.addEvent(newEvent);
               _nameController.clear();
               _attendeesController.clear();
               _dateTimeController.clear();
@@ -142,10 +130,6 @@ class _EventListPageState extends State<EventListPage> {
         ],
       ),
     );
-  }
-
-  void _generatePdf() {
-    PDFService.generateAndPrintPDF();
   }
 
   void _onLongPress(int index) {
@@ -166,50 +150,34 @@ class _EventListPageState extends State<EventListPage> {
         }
       });
     } else {
+      final realIndex = EventCrudService.visibleEvents[index].key;
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => EventDetailPage(event: _allEvents[index]),
+          builder: (context) =>
+              EventDetailPage(event: EventCrudService.allEvents[realIndex]),
         ),
       );
     }
   }
 
-  void _cancelSelection() {
+  void _deleteSelected() {
+    EventCrudService.deleteEventsByVisibleIndexes(_selectedIndexes);
     setState(() {
       _selectionMode = false;
       _selectedIndexes.clear();
     });
+    _loadEvents();
   }
 
-  void _deleteSelected() {
-    setState(() {
-      // Map visible indexes to real indexes in _allEvents
-      final visibleEvents = _allEvents
-          .asMap()
-          .entries
-          .where((entry) => !entry.value.isDeleted)
-          .toList();
-      for (var visibleIndex in _selectedIndexes) {
-        final realIndex = visibleEvents[visibleIndex].key;
-        final event = _allEvents[realIndex];
-        _allEvents[realIndex] = Event(
-          name: event.name,
-          dateTime: event.dateTime,
-          attendees: event.attendees,
-          amount: event.amount,
-          isDeleted: true,
-        );
-      }
-      _selectionMode = false;
-      _selectedIndexes.clear();
-    });
-    _saveEvents();
-    _loadEvents(); // Refresh list to hide deleted events
+  void _generatePdf() {
+    PDFService.generateAndPrintPDF();
   }
 
   @override
   Widget build(BuildContext context) {
+    final visibleEvents = EventCrudService.visibleEvents;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -243,20 +211,12 @@ class _EventListPageState extends State<EventListPage> {
                 ),
               ),
       ),
-
-      body: _allEvents.where((e) => !e.isDeleted).isEmpty
+      body: visibleEvents.isEmpty
           ? const Center(child: Text('No events added yet.'))
           : ListView.builder(
-              itemCount: _allEvents.where((e) => !e.isDeleted).length,
+              itemCount: visibleEvents.length,
               itemBuilder: (context, visibleIndex) {
-                // Map visibleIndex to the correct index in _allEvents
-                final visibleEvents = _allEvents
-                    .asMap()
-                    .entries
-                    .where((entry) => !entry.value.isDeleted)
-                    .toList();
-                final index = visibleEvents[visibleIndex].key;
-                final event = _allEvents[index];
+                final event = visibleEvents[visibleIndex].value;
                 final isSelected = _selectedIndexes.contains(visibleIndex);
 
                 return GestureDetector(
@@ -304,10 +264,16 @@ class _EventListPageState extends State<EventListPage> {
                 const SizedBox(height: 10),
                 FloatingActionButton(
                   onPressed: () async {
-                    final noti = NotiService();
-                    await noti.checkTomorrowEventsAndNotify();
+                    notiService.showNotification();
                   },
-                  child: const Icon(Icons.notifications_active),
+                  child: const Icon(Icons.notifications),
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  onPressed: () async {
+                    await notiService.scheduleNotificationWithSnackbar(context);
+                  },
+                  child: const Icon(Icons.alarm),
                 ),
               ],
             )
