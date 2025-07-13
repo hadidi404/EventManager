@@ -1,5 +1,6 @@
 import 'package:event_manager_2/noti_service.dart';
 import 'package:flutter/material.dart';
+import 'utils/date_time_helper.dart';
 import 'event.dart';
 import 'event_crud_service.dart';
 import 'pdf_service.dart';
@@ -35,34 +36,9 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   Future<void> _pickDateTime() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (pickedDate != null) {
-      TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (pickedTime != null) {
-        DateTime fullDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-
-        String formatted =
-            "${fullDateTime.year}-${fullDateTime.month.toString().padLeft(2, '0')}-${fullDateTime.day.toString().padLeft(2, '0')} "
-            "${pickedTime.format(context)}";
-
-        _dateTimeController.text = formatted;
-      }
+    final formatted = await DateTimePickerHelper.pickDateTime(context);
+    if (formatted != null) {
+      _dateTimeController.text = formatted;
     }
   }
 
@@ -139,23 +115,29 @@ class _EventListPageState extends State<EventListPage> {
     });
   }
 
-  void _onTap(int index) {
+  void _onTap(int visibleIndex) {
     if (_selectionMode) {
       setState(() {
-        if (_selectedIndexes.contains(index)) {
-          _selectedIndexes.remove(index);
+        if (_selectedIndexes.contains(visibleIndex)) {
+          _selectedIndexes.remove(visibleIndex);
           if (_selectedIndexes.isEmpty) _selectionMode = false;
         } else {
-          _selectedIndexes.add(index);
+          _selectedIndexes.add(visibleIndex);
         }
       });
     } else {
-      final realIndex = EventCrudService.visibleEvents[index].key;
+      final entry = EventCrudService.visibleEvents[visibleIndex];
+      final event = entry.value;
+      final index = entry.key;
+
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              EventDetailPage(event: EventCrudService.allEvents[realIndex]),
+          builder: (context) => EventDetailPage(
+            event: event,
+            index: index,
+            onUpdate: _loadEvents,
+          ),
         ),
       );
     }
