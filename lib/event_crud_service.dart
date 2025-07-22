@@ -6,16 +6,19 @@ class EventCrudService {
   static List<MapEntry<int, Event>> _visibleEvents = [];
 
   static List<Event> get allEvents => _allEvents;
+
   static List<MapEntry<int, Event>> get visibleEvents => _visibleEvents;
+
+  static List<MapEntry<int, Event>> get completedEvents => _allEvents
+      .asMap()
+      .entries
+      .where((entry) => !entry.value.isDeleted && entry.value.isCompleted)
+      .toList();
 
   static Future<void> loadEvents() async {
     final loadedEvents = await CSVService.loadAllEvents();
     _allEvents = loadedEvents;
-    _visibleEvents = _allEvents
-        .asMap()
-        .entries
-        .where((entry) => !entry.value.isDeleted)
-        .toList();
+    _updateVisibleEvents();
   }
 
   static Future<void> saveEvents() async {
@@ -40,6 +43,7 @@ class EventCrudService {
         dateTime: event.dateTime,
         attendees: event.attendees,
         amount: event.amount,
+        paidAmount: event.paidAmount,
         isDeleted: true,
       );
     }
@@ -52,7 +56,7 @@ class EventCrudService {
     _visibleEvents = _allEvents
         .asMap()
         .entries
-        .where((entry) => !entry.value.isDeleted)
+        .where((entry) => !entry.value.isDeleted && !entry.value.isCompleted)
         .toList();
   }
 }

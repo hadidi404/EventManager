@@ -5,6 +5,8 @@ import 'event.dart';
 import 'event_crud_service.dart';
 import 'pdf_service.dart';
 import 'event_detail_page.dart';
+import 'completed_events_page.dart';
+import 'package:intl/intl.dart';
 
 class EventListPage extends StatefulWidget {
   const EventListPage({super.key});
@@ -36,9 +38,12 @@ class _EventListPageState extends State<EventListPage> {
   }
 
   Future<void> _pickDateTime() async {
-    final formatted = await DateTimePickerHelper.pickDateTime(context);
-    if (formatted != null) {
-      _dateTimeController.text = formatted;
+    final picked = await DateTimePickerHelper.pickDateTime(context);
+    if (picked != null) {
+      final formatted = DateFormat('yyyy-MM-dd hh:mm a').format(picked);
+      setState(() {
+        _dateTimeController.text = formatted;
+      });
     }
   }
 
@@ -252,10 +257,15 @@ class _EventListPageState extends State<EventListPage> {
                 ),
                 const SizedBox(height: 10),
                 FloatingActionButton(
-                  onPressed: () async {
-                    await notiService.scheduleNotificationWithSnackbar(context);
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CompletedEventsPage(),
+                      ),
+                    );
                   },
-                  child: const Icon(Icons.alarm),
+                  child: const Icon(Icons.check),
                 ),
               ],
             )

@@ -1,7 +1,8 @@
+// lib/helpers/date_time_picker_helper.dart
 import 'package:flutter/material.dart';
 
 class DateTimePickerHelper {
-  static Future<String?> pickDateTime(BuildContext context) async {
+  static Future<DateTime?> pickDateTime(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -16,19 +17,15 @@ class DateTimePickerHelper {
       );
 
       if (pickedTime != null) {
-        DateTime fullDateTime = DateTime(
+        return DateTime(
           pickedDate.year,
           pickedDate.month,
           pickedDate.day,
           pickedTime.hour,
           pickedTime.minute,
         );
-
-        return "${fullDateTime.year}-${fullDateTime.month.toString().padLeft(2, '0')}-${fullDateTime.day.toString().padLeft(2, '0')} "
-            "${pickedTime.format(context)}";
       }
     }
-
     return null;
   }
 }

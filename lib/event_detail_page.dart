@@ -144,7 +144,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                       );
                       if (picked != null) {
                         setState(() {
-                          _dateTimeController.text = picked;
+                          _dateTimeController.text = picked.toIso8601String();
                         });
                       }
                     },

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Event {
   final String name;
   final String dateTime;
@@ -35,5 +37,15 @@ class Event {
       paidAmount: list.length > 4 ? int.tryParse(list[4].toString()) ?? 0 : 0,
       isDeleted: list.length > 5 && list[5].toString().toLowerCase() == 'true',
     );
+  }
+  bool get isCompleted {
+    try {
+      final eventDate = DateFormat('yyyy-MM-dd hh:mm a').parse(dateTime);
+      final now = DateTime.now();
+      final totalAmount = int.tryParse(amount) ?? 0;
+      return paidAmount >= totalAmount && eventDate.isBefore(now);
+    } catch (e) {
+      return false; // If parsing fails, consider it not completed
+    }
   }
 }
