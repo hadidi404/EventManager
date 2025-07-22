@@ -24,8 +24,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
   late TextEditingController _attendeesController;
   late TextEditingController _dateTimeController;
   late TextEditingController _amountController;
+  late TextEditingController _paymentController;
 
   bool _isEditing = false;
+  late int _paidAmount;
 
   @override
   void initState() {
@@ -34,6 +36,18 @@ class _EventDetailPageState extends State<EventDetailPage> {
     _attendeesController = TextEditingController(text: widget.event.attendees);
     _dateTimeController = TextEditingController(text: widget.event.dateTime);
     _amountController = TextEditingController(text: widget.event.amount);
+    _paymentController = TextEditingController();
+    _paidAmount = widget.event.paidAmount;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _attendeesController.dispose();
+    _dateTimeController.dispose();
+    _amountController.dispose();
+    _paymentController.dispose();
+    super.dispose();
   }
 
   Future<void> _saveChanges() async {
@@ -42,6 +56,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
       attendees: _attendeesController.text.trim(),
       dateTime: _dateTimeController.text.trim(),
       amount: _amountController.text.trim(),
+      paidAmount: _paidAmount,
+      isDeleted: false,
     );
 
     final allEvents = await CSVService.loadAllEvents();
@@ -51,6 +67,27 @@ class _EventDetailPageState extends State<EventDetailPage> {
     setState(() => _isEditing = false);
   }
 
+  Future<void> _recordPayment() async {
+    final newPayment = int.tryParse(_paymentController.text);
+    if (newPayment == null || newPayment <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid payment amount')),
+      );
+      return;
+    }
+
+    setState(() {
+      _paidAmount += newPayment;
+      _paymentController.clear();
+    });
+
+    await _saveChanges();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Payment recorded successfully!')),
+    );
+  }
+
   Future<void> _deleteEvent() async {
     final allEvents = await CSVService.loadAllEvents();
     final updated = Event(
@@ -58,6 +95,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       attendees: widget.event.attendees,
       dateTime: widget.event.dateTime,
       amount: widget.event.amount,
+      paidAmount: widget.event.paidAmount,
       isDeleted: true,
     );
 
@@ -69,6 +107,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final total = int.tryParse(_amountController.text) ?? 0;
+    final remaining = total - _paidAmount;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Event Details'),
@@ -120,6 +161,23 @@ class _EventDetailPageState extends State<EventDetailPage> {
               _amountController,
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 15),
+            Text('Paid Amount: ₱$_paidAmount'),
+            Text('Remaining: ₱$remaining'),
+            const SizedBox(height: 15),
+            TextField(
+              controller: _paymentController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'New Payment',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _recordPayment,
+              child: const Text('Record Payment'),
+            ),
           ],
         ),
       ),
@@ -132,7 +190,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     TextInputType keyboardType = TextInputType.text,
   }) {
     return AbsorbPointer(
-      absorbing: !_isEditing, // disable when not editing
+      absorbing: !_isEditing,
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
