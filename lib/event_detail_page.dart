@@ -2,6 +2,7 @@ import 'package:event_manager_2/utils/date_time_helper.dart';
 import 'package:flutter/material.dart';
 import 'event.dart';
 import 'csv_service.dart';
+import 'package:intl/intl.dart';
 
 class EventDetailPage extends StatefulWidget {
   final Event event;
@@ -143,8 +144,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
                         context,
                       );
                       if (picked != null) {
+                        final formatted = DateFormat(
+                          'yyyy-MM-dd hh:mm a',
+                        ).format(picked);
                         setState(() {
-                          _dateTimeController.text = picked.toIso8601String();
+                          _dateTimeController.text = formatted;
                         });
                       }
                     },

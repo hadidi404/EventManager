@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "208504825172",
+    "project_id": "ai-resto-6fb3b",
+    "storage_bucket": "ai-resto-6fb3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208504825172:android:a9c6b5b077e3ee44ca14c1",
+        "android_client_info": {
+          "package_name": "com.example.event_manager_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-rg5MFi2rWNgieZ55Z1IHgNLc4LkgjFA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

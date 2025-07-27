@@ -42,12 +42,22 @@ class _EventCalendarPageState extends State<EventCalendarPage> {
               time.minute,
             );
             final end = start.add(const Duration(hours: 1));
+            // Color logic based on payment status
+            final balance = double.tryParse(event.amount)! - event.paidAmount;
+            Color color;
+            if (balance == 0) {
+              color = Colors.green; // Fully paid
+            } else if (balance == double.tryParse(event.amount)) {
+              color = Colors.red; // Unpaid
+            } else {
+              color = Colors.orange; // Partially paid
+            }
 
             return Appointment(
               startTime: start,
               endTime: end,
               subject: event.name,
-              color: Colors.deepPurpleAccent,
+              color: color,
               startTimeZone: '',
               endTimeZone: '',
             );
