@@ -51,7 +51,21 @@ class CSVService {
 
   static Future<void> saveEvents(List<Event> events) async {
     List<List<String>> csvData = [
-      ['Event Name', 'Date & Time', 'Attendees/Organization', 'Amount', 'isDeleted'],
+      [
+        'Event Name',
+        'Date & Time',
+        'Attendees',
+        'Amount',
+        'Paid Amount',
+        'isDeleted',
+        'Location',
+        'Contact Person',
+        'Contact Details',
+        'Catering',
+        'Pax',
+        'Service Scope',
+        'Catering Details',
+      ],
       ...events.map((e) => e.toList()),
     ];
 

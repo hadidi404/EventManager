@@ -14,20 +14,76 @@ class PDFService {
     final csvString = await file.readAsString();
     final csvTable = const CsvToListConverter().convert(csvString);
 
-    // Remove the isDeleted column (last column) from header and data rows, but keep all rows (including deleted)
+    const excludedIndexes = [5, 12];
+
+    // Remove 'isDeleted' and 'Catering Details' column
     final filteredTable = [
-      csvTable.first.sublist(0, 4), // header without isDeleted
-      ...csvTable.skip(1).map((row) => row.sublist(0, 4)),
+      [
+        for (int i = 0; i < csvTable.first.length; i++)
+          if (!excludedIndexes.contains(i)) csvTable.first[i].toString(),
+      ],
+      ...csvTable.skip(1).map((row) {
+        return [
+          for (int i = 0; i < row.length; i++)
+            if (!excludedIndexes.contains(i)) row[i].toString(),
+        ];
+      }),
     ];
 
+    // Define column widths
+    final columnWidths = <int, pw.TableColumnWidth>{
+      0: const pw.FlexColumnWidth(2.5), // Event Name
+      1: const pw.FlexColumnWidth(2.3), // Date & Time
+      2: const pw.FlexColumnWidth(2.5), // Attendees
+      3: const pw.FlexColumnWidth(1.8), // Amount
+      4: const pw.FlexColumnWidth(1.8), // Paid Amount
+      5: const pw.FlexColumnWidth(2.5), // Location
+      6: const pw.FlexColumnWidth(2), // Contact Person
+      7: const pw.FlexColumnWidth(2.3), // Contact Details
+      8: const pw.FlexColumnWidth(1), // Catering Service
+      9: const pw.FlexColumnWidth(1), // Pax
+      10: const pw.FlexColumnWidth(2), // Scope of Service
+    };
+
     pdf.addPage(
-      pw.Page(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4.landscape,
         build: (pw.Context context) {
-          return pw.Table.fromTextArray(
-            data: filteredTable,
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            border: pw.TableBorder.all(),
-          );
+          final headers = filteredTable.first;
+          final dataRows = filteredTable.skip(1).toList();
+
+          return [
+            pw.Table(
+              border: pw.TableBorder.all(),
+              columnWidths: columnWidths,
+              children: [
+                // Header row
+                pw.TableRow(
+                  decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                  children: headers.map((text) {
+                    return pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(
+                        text,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                // Data rows
+                ...dataRows.map((row) {
+                  return pw.TableRow(
+                    children: row.map((cell) {
+                      return pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(cell, softWrap: true),
+                      );
+                    }).toList(),
+                  );
+                }),
+              ],
+            ),
+          ];
         },
       ),
     );

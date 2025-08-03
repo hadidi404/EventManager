@@ -12,7 +12,7 @@ class EventCrudService {
   static List<MapEntry<int, Event>> get completedEvents => _allEvents
       .asMap()
       .entries
-      .where((entry) => !entry.value.isDeleted && entry.value.isCompleted)
+      .where((entry) => entry.value.isCompleted)
       .toList();
 
   static Future<void> loadEvents() async {
@@ -32,20 +32,16 @@ class EventCrudService {
   }
 
   static void deleteEventsByVisibleIndexes(Set<int> visibleIndexes) {
-    final realIndexesToDelete = visibleIndexes
-        .map((visibleIndex) => _visibleEvents[visibleIndex].key)
-        .toList();
+    final realIndexesToDelete =
+        visibleIndexes
+            .map((visibleIndex) => _visibleEvents[visibleIndex].key)
+            .toList()
+          ..sort(
+            (a, b) => b.compareTo(a),
+          ); // remove from back to avoid reindexing issues
 
     for (var realIndex in realIndexesToDelete) {
-      final event = _allEvents[realIndex];
-      _allEvents[realIndex] = Event(
-        name: event.name,
-        dateTime: event.dateTime,
-        attendees: event.attendees,
-        amount: event.amount,
-        paidAmount: event.paidAmount,
-        isDeleted: true,
-      );
+      _allEvents.removeAt(realIndex);
     }
 
     _updateVisibleEvents();
@@ -56,7 +52,7 @@ class EventCrudService {
     _visibleEvents = _allEvents
         .asMap()
         .entries
-        .where((entry) => !entry.value.isDeleted && !entry.value.isCompleted)
+        .where((entry) => !entry.value.isCompleted)
         .toList();
   }
 }
