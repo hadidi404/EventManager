@@ -6,7 +6,6 @@ class Event {
   final String attendees;
   final String amount;
   int paidAmount;
-  final bool isDeleted;
   final String location;
   final String contactPerson;
   final String contactDetails;
@@ -20,7 +19,6 @@ class Event {
     required this.attendees,
     required this.amount,
     this.paidAmount = 0, // Default to 0
-    this.isDeleted = false,
     required this.location,
     required this.contactPerson,
     required this.contactDetails,
@@ -37,7 +35,6 @@ class Event {
       attendees,
       amount,
       paidAmount.toString(),
-      isDeleted.toString(),
       location,
       contactPerson,
       contactDetails,
@@ -55,19 +52,18 @@ class Event {
       attendees: list[2].toString(),
       amount: list[3].toString(),
       paidAmount: list.length > 4 ? int.tryParse(list[4].toString()) ?? 0 : 0,
-      isDeleted: list.length > 5 && list[5].toString().toLowerCase() == 'true',
-      location: list.length > 6 ? list[6].toString() : '',
-      contactPerson: list.length > 7 ? list[7].toString() : '',
-      contactDetails: list.length > 8 ? list[8].toString() : '',
-      CateringService: list.length > 9
+      location: list.length > 5 ? list[5].toString() : '',
+      contactPerson: list.length > 6 ? list[6].toString() : '',
+      contactDetails: list.length > 7 ? list[7].toString() : '',
+      CateringService: list.length > 8
           ? (() {
-              final v = list[9].toString().toLowerCase();
+              final v = list[8].toString().toLowerCase();
               return v == 'true' || v == 'yes';
             })()
           : false,
-      pax: list.length > 10 ? list[10].toString() : '',
-      scopeOfService: list.length > 11 ? list[11].toString() : '',
-      cateringDetails: list.length > 12 ? list[12].toString() : '',
+      pax: list.length > 9 ? list[9].toString() : '',
+      scopeOfService: list.length > 10 ? list[10].toString() : '',
+      cateringDetails: list.length > 11 ? list[11].toString() : '',
     );
   }
 

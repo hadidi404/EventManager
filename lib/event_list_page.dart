@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'csv_service.dart';
 import 'utils/date_time_helper.dart';
 import 'event.dart';
+import 'excel_export_service.dart';
 import 'event_crud_service.dart';
 import 'pdf_service.dart';
 import 'event_detail_page.dart';
@@ -312,6 +313,10 @@ class _EventListPageState extends State<EventListPage> {
     PDFService.generateAndPrintPDF();
   }
 
+  void _generateCSV() {
+    ExcelExportService.shareExcel();
+  }
+
   @override
   Widget build(BuildContext context) {
     final visibleEvents = EventCrudService.visibleEvents;
@@ -340,9 +345,14 @@ class _EventListPageState extends State<EventListPage> {
                   ),
                 ],
               )
-            : const Text('Upcoming Events'),
+            : const Text('Active Events'),
         actions: [
           IconButton(icon: Icon(Icons.picture_as_pdf), onPressed: _generatePdf),
+          IconButton(
+            icon: Icon(Icons.file_upload),
+            onPressed: _generateCSV, // now using the imported function
+            tooltip: 'Export CSV',
+          ),
         ],
       ),
       body: visibleEvents.isEmpty

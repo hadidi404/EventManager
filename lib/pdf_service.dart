@@ -14,9 +14,8 @@ class PDFService {
     final csvString = await file.readAsString();
     final csvTable = const CsvToListConverter().convert(csvString);
 
-    const excludedIndexes = [5, 12];
+    const excludedIndexes = [11];
 
-    // Remove 'isDeleted' and 'Catering Details' column
     final filteredTable = [
       [
         for (int i = 0; i < csvTable.first.length; i++)

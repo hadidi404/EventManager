@@ -26,12 +26,7 @@ class CSVService {
       final csvString = await file.readAsString();
       final csvTable = const CsvToListConverter().convert(csvString);
 
-      // Only return events that are not deleted (isDeleted == false)
-      return csvTable
-          .skip(1)
-          .map((e) => Event.fromList(e))
-          .where((event) => !event.isDeleted)
-          .toList();
+      return csvTable.skip(1).map((e) => Event.fromList(e)).toList();
     } catch (e) {
       return [];
     }
@@ -57,7 +52,6 @@ class CSVService {
         'Attendees',
         'Amount',
         'Paid Amount',
-        'isDeleted',
         'Location',
         'Contact Person',
         'Contact Details',
