@@ -25,7 +25,7 @@ android {
         applicationId = "com.example.event_manager_2"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -48,5 +48,4 @@ flutter {
 dependencies {
     // ✅ Required for desugaring Java 8+ APIs
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-
 }

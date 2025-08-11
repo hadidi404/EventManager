@@ -1,20 +1,10 @@
-import 'package:event_manager_2/noti_service.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'event_list_page.dart';
-import 'event_calendar_page.dart'; // Make sure this file exists
+import 'completed_events_page.dart';
+import 'event_calendar_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Ask notification permission on Android 13+
-  if (await Permission.notification.isDenied) {
-    await Permission.notification.request();
-  }
-
-  // Initialize notification service
-  await NotiService().initNotification();
-
   runApp(const MyApp());
 }
 
@@ -43,6 +33,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   final List<Widget> _pages = [
     EventListPage(), // Home
     EventCalendarPage(), // Calendar
+    CompletedEventsPage(), //  Completed
   ];
 
   void _onItemTapped(int index) {
@@ -63,6 +54,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Calendar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_circle),
+            label: 'Completed',
           ),
         ],
       ),

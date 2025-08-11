@@ -1,4 +1,3 @@
-import 'package:event_manager_2/noti_service.dart';
 import 'package:flutter/material.dart';
 import 'csv_service.dart';
 import 'utils/date_time_helper.dart';
@@ -25,7 +24,6 @@ class _EventListPageState extends State<EventListPage> {
   final TextEditingController _attendeesController = TextEditingController();
   final TextEditingController _dateTimeController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  final NotiService notiService = NotiService();
   final TextEditingController _cateringDetailsController =
       TextEditingController();
   final TextEditingController _paxController = TextEditingController();
@@ -46,7 +44,6 @@ class _EventListPageState extends State<EventListPage> {
   @override
   void initState() {
     super.initState();
-    notiService.initNotification();
     _loadEvents();
   }
 
