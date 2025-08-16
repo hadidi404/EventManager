@@ -1,6 +1,7 @@
 import 'package:event_manager_2/utils/date_time_helper.dart';
 import 'package:flutter/material.dart';
 import 'event.dart';
+import 'utils/currency_formatter.dart';
 import 'csv_service.dart';
 import 'package:intl/intl.dart';
 
@@ -329,13 +330,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Paid Amount: ₱$_paidAmount',
+                          'Paid Amount: ${CurrencyFormatter.format(_paidAmount)}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       Expanded(
                         child: Text(
-                          'Remaining: ₱${(int.tryParse(_amountController.text) ?? 0) - _paidAmount}',
+                          'Remaining: ${CurrencyFormatter.format((int.tryParse(_amountController.text) ?? 0) - _paidAmount)}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),

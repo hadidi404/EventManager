@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'event_crud_service.dart';
+import 'utils/currency_formatter.dart';
 
 class CompletedEventsPage extends StatelessWidget {
   const CompletedEventsPage({super.key});
@@ -28,7 +29,7 @@ class CompletedEventsPage extends StatelessWidget {
                   child: ListTile(
                     title: Text(event.name),
                     subtitle: Text(
-                      'Date & Time: ${event.dateTime}\nAttendees: ${event.attendees}\nAmount: ₱${event.amount}',
+                      'Date & Time: ${event.dateTime}\nAttendees: ${event.attendees}\nAmount: ${CurrencyFormatter.format(double.parse(event.amount))}',
                     ),
                     tileColor: Colors.green[50],
                   ),

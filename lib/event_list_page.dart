@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'csv_service.dart';
 import 'utils/date_time_helper.dart';
+import 'utils/currency_formatter.dart';
 import 'event.dart';
 import 'excel_export_service.dart';
 import 'event_crud_service.dart';
@@ -447,7 +448,9 @@ class _EventListPageState extends State<EventListPage> {
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        '₱${event.amount}',
+                                        CurrencyFormatter.format(
+                                          int.parse(event.amount),
+                                        ), // parse string → int
                                         style: const TextStyle(
                                           fontSize: 13,
                                           color: Colors.black87,
